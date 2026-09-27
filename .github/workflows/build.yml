@@ -5,12 +5,12 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Install Toolchain Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libncurses5-dev zlib1g-dev gawk git gettext libssl-dev xsltproc wget unzip
+          sudo apt-get install -y build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc wget unzip python3 python-is-python3
 
       - name: Download & Extract ImageBuilder (OpenWrt 18.06.9)
         run: |
@@ -26,7 +26,7 @@ jobs:
           cat << 'EOF' > files/etc/uci-defaults/99-custom-setup
           #!/bin/sh
 
-          # 1. Aktifkan Tema Modern Material secara default
+          # 1. Aktifkan Tema Modern Material
           uci set luci.main.mediaurlbase='/luci-static/material'
 
           # 2. Aktifkan Wi-Fi otomatis
@@ -39,7 +39,7 @@ jobs:
           uci set network.wan.ifname='usb0'
           uci set network.wan.proto='dhcp'
 
-          # 4. AdGuard DNS (Anti-Iklan di semua perangkat)
+          # 4. AdGuard DNS (Anti-Iklan)
           uci set network.wan.peerdns='0'
           uci add_list network.wan.dns='94.140.14.14'
           uci add_list network.wan.dns='94.140.15.15'
@@ -52,7 +52,6 @@ jobs:
       - name: Compile Firmware (.bin)
         run: |
           cd ib
-          # Menambahkan tema modern luci-theme-material
           make image PROFILE="TLMR3420V2" \
             PACKAGES="luci luci-theme-material kmod-usb2 kmod-usb-net kmod-usb-net-rndis kmod-usb-net-cdc-ether -ppp -ppp-mod-pppoe -kmod-ppp -kmod-pppoe -odhcp6c -ip6tables -kmod-ip6tables -kmod-ipv6" \
             FILES="files"
